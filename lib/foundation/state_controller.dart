@@ -27,13 +27,22 @@ abstract class StateController {
         put(controller, tag: tag, autoRemove: autoRemove);
   }
 
-  static T find<T extends StateController>({Object? tag}) {
-    try {
-      return _controllers
-          .lastWhere((element) =>
-              element.controller is T && (tag == null || tag == element.tag))
-          .controller as T;
-    } catch (e) {
+  // 新增：判断控制器是否存在
+static bool exist<T extends StateController>({Object? tag}) {
+  return _controllers.any((element) => 
+    element.controller is T && (tag == null || tag == element.tag)
+  );
+}
+
+// 修改：找不到返回 null，不再抛异常崩溃
+static T? find<T extends StateController>({Object? tag}) {
+  if (!exist<T>(tag: tag)) return null;
+  return _controllers
+      .lastWhere((element) => 
+        element.controller is T && (tag == null || tag == element.tag)
+      )
+      .controller as T;
+} catch (e) {
       throw StateError("$T with tag $tag Not Found");
     }
   }
